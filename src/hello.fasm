@@ -1,0 +1,71 @@
+;======================================================;
+; Hello World                                          ;
+;------------------------------------------------------;
+; By Craig Bamford (Dex)                  (11-03-2013) ;
+;------------------------------------------------------;
+format ELF executable                                  ;
+entry start                                            ;
+;======================================================;
+; Print macro                                          ;
+;------------------------------------------------------;
+macro print _msg,_msglen                               ;
+{ common                                               ;
+        push      (r0)                                 ;
+        push      (r1)                                 ;
+        push      (r2)                                 ;
+        push      (r7)                                 ;
+        mov       r7, 0x4                              ;
+        mov       r0, 0x1                              ;
+        imm32     r1, _msg                             ;
+        imm32     r2, _msglen                          ;
+        swi       0x0                                  ;
+                                                       ;
+        pop       (r7)                                 ;
+        pop       (r2)                                 ;
+        pop       (r1)                                 ;
+        pop       (r0)                                 ;
+}                                                      ;
+macro imm32 reg,immediate {
+  mov reg,(immediate) and $FF
+  orr reg,(immediate) and $FF00
+  orr reg,(immediate) and $FF0000
+  orr reg,(immediate) and $FF000000
+}
+segment readable writeable executable                  ;
+;======================================================;
+; Main start                                           ;
+;------------------------------------------------------;
+start:                                                 ;
+        print msg,msg.msg_size                         ; print start message
+        mov       r0, 0x0                              ; exit
+        mov       r7, 0x1                              ;
+        swi       0x0                                  ;
+
+
+;======================================================;
+; data                                                 ;
+;------------------------------------------------------;
+align 4                                                ;
+msg    db 'Hello from Docker.', 0x0A
+       db 'This message shows that your installation appears to be working correctly.', 0x0A
+       db 0x0A
+       db 'To generate this message, Docker took the following steps:', 0x0A
+       db ' 1. The Docker client contacted the Docker daemon.', 0x0A
+       db ' 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.', 0x0A
+       db ' 3. The Docker daemon created a new container from that image which runs the', 0x0A
+       db '    executable that produces the output you are currently reading.', 0x0A
+       db ' 4. The Docker daemon streamed that output to the Docker client, which sent it', 0x0A
+       db '    to your terminal.', 0x0A
+       db 0x0A
+       db 'To try something more ambitious, you can run an Ubuntu container with:', 0x0A
+       db ' $ docker run -it ubuntu bash', 0x0A
+       db 0x0A
+       db 'Share images, automate workflows, and more with a free Docker Hub account:', 0x0A
+       db ' https://hub.docker.com', 0x0A
+       db 0x0A
+       db 'For more examples and ideas, visit:', 0x0A
+       db ' https://docs.docker.com/userguide/', 0x0A
+       db 0x0A
+
+.msg_size = $-msg                                      ;
+align 4                                                ;
